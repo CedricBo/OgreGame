@@ -18,6 +18,15 @@ namespace Game
 
         float getAngleY() const;
         float rotateY(float angle);
+
+        struct Move {
+            bool left;
+            bool right;
+            bool front;
+            bool back;
+        } move;
+
+        float size;
     private:
         bool _end;
 

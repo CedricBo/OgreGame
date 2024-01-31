@@ -5,7 +5,9 @@
 Game::Game::Game()
     : _end(false),
     _angleX(0),
-    _angleY(0)
+    _angleY(0),
+    move({false, false, false, false}),
+    size(5)
 {
 }
 
