@@ -27,6 +27,8 @@ namespace Game
         } move;
 
         float size;
+
+        bool detach;
     private:
         bool _end;
 

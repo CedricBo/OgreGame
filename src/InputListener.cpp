@@ -35,6 +35,9 @@ bool InputListener::keyPressed(const OgreBites::KeyboardEvent &evt)
     case 115:
         _game.get().move.back = true;
         break;
+    case 32:
+        _game.get().detach = true;
+        break;
     default:
         break;
     }

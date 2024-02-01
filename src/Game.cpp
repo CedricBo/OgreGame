@@ -7,7 +7,8 @@ Game::Game::Game()
     _angleX(0),
     _angleY(0),
     move({false, false, false, false}),
-    size(5)
+    size(5),
+    detach(false)
 {
 }
 

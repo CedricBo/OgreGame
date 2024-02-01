@@ -3,6 +3,7 @@
 #include <Ogre.h>
 #include <OgreApplicationContext.h>
 #include <OgreCameraMan.h>
+#include <Bullet/OgreBullet.h>
 #include <chrono>
 #include <numeric>
 
@@ -18,6 +19,7 @@ int main(int, char**)
     Game::FrameListener frameListener{game};
     Game::InputListener inputListener{game};
     Game::GameSceneManagerFactory gameSceneManagerFactory{};
+    Ogre::Bullet::DynamicsWorld world({0.0f, -9.0f, 0.0f});
 
     context.initApp();
     auto root = context.getRoot();
@@ -37,9 +39,14 @@ int main(int, char**)
     camera->setNearClipDistance(5);
 
     auto light = sceneManager->createLight(Ogre::Light::LightTypes::LT_SPOTLIGHT);
-    light->setSpecularColour(Ogre::ColourValue::Red);
-    // light->setSourceSize(15, 15);
-    // light->setPowerScale(15);
+    light->setSpecularColour(Ogre::ColourValue::Green);
+
+    sceneManager->setShadowTechnique(Ogre::ShadowTechnique::SHADOWTYPE_TEXTURE_ADDITIVE);
+
+    auto light2 = sceneManager->createLight(Ogre::Light::LightTypes::LT_SPOTLIGHT);
+    light2->setSpecularColour(Ogre::ColourValue::Red);
+    auto light2Node = sceneRoot->createChildSceneNode({ 0, 30, 0}, Ogre::Quaternion(Ogre::Degree(-90), Ogre::Vector3::UNIT_Y));
+    light2Node->attachObject(light2);
 
     auto cameraNode = sceneRoot->createChildSceneNode();
     cameraNode->attachObject(camera);
@@ -47,7 +54,7 @@ int main(int, char**)
 
     Ogre::Plane ground{0, 0, 1, 1};
 
-    auto groundMesh = Ogre::MeshManager::getSingleton().createPlane("Ground", Ogre::RGN_DEFAULT, ground, 300, 300);
+    auto groundMesh = Ogre::MeshManager::getSingleton().createPlane("Ground", Ogre::RGN_DEFAULT, ground, 1200, 1200);
     auto groundEntity = sceneManager->createEntity(groundMesh);
 
     groundEntity->setMaterialName("RTSS/PerPixel_SinglePass");
@@ -56,6 +63,9 @@ int main(int, char**)
         ->createChildSceneNode("Ground", {0, 0, 0}, Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3::NEGATIVE_UNIT_X))
         ->attachObject(groundEntity);
 
+    world.addRigidBody(0, groundEntity, Ogre::Bullet::CT_BOX);
+
+
     for(int i = 1; i <= 10; i++)
     {
         auto entity = sceneManager->createEntity("cube.mesh");
@@ -63,10 +73,11 @@ int main(int, char**)
         entity->setMaterialName("RTSS/PerPixel_SinglePass");
 
         auto meshNode = sceneRoot->createChildSceneNode("EntityNode" + std::to_string(i), {110.0f * i, 0, 0});
-
         meshNode->attachObject(entity);
 
-        // entity->setCastShadows(true);
+        meshNode->scale(1, 1 + (0.1f * i), 1);
+
+        world.addRigidBody(5, entity, Ogre::Bullet::CT_BOX);
     }
 
     root->addFrameListener(&frameListener);
@@ -76,9 +87,7 @@ int main(int, char**)
     auto viewport = context.getRenderWindow()->addViewport(camera);
     viewport->setBackgroundColour(Ogre::ColourValue(0,0,0));
 
-    // Ogre::CompositorManager::getSingletonPtr()->addCompositor(viewport, "DeferredShading/ShowNormals");
-
-    sceneManager->setShadowTechnique(Ogre::ShadowTechnique::SHADOWDETAILTYPE_ADDITIVE);
+    viewport->setMaterialScheme(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
 
     cameraNode->lookAt(Ogre::Vector3(0, 0, 0), Ogre::Node::TransformSpace::TS_WORLD);
 
@@ -94,6 +103,8 @@ int main(int, char**)
         auto start = std::chrono::steady_clock::now();
         running = root->renderOneFrame();
         sceneRoot->needUpdate(true);
+
+        world.getBtWorld()->stepSimulation(1);
 
         auto quaternion =
             Ogre::Quaternion(Ogre::Degree(-game.getAngleX()), Ogre::Vector3::UNIT_Y) *
