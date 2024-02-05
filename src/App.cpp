@@ -9,11 +9,12 @@ App::App()
     : _context("MazeGame"),
     _game(),
     _inputListener(_game),
-    _gameSceneManagerFactory(),
-    _world({0.0f, -9.0f, 0.0f})
+    _gameSceneManagerFactory()
 {
     _context.initApp();
     _context.addInputListener(&_inputListener);
+
+    _context.setWindowGrab();
 
     auto root = _context.getRoot();
 
@@ -42,6 +43,41 @@ void MazeGame::App::initViewPort(Ogre::Camera* camera)
     _viewport->setBackgroundColour(Ogre::ColourValue(0,0,0));
 
     _viewport->setMaterialScheme(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
+}
+
+void MazeGame::App::run()
+{
+    bool running = true;
+    auto root = _context.getRoot();
+    auto cameraNode = _scene->getCameraNode();
+    auto light = _scene->getTorchLight();
+    auto world = _scene->getWorld();
+
+    while(running)
+    {
+        running = root->renderOneFrame() && !_game.isEnded();
+
+        _scene->getRootSceneNode()->needUpdate(true);
+
+        auto quaternion =
+            Ogre::Quaternion(Ogre::Degree(-_game.getAngleX()), Ogre::Vector3::UNIT_Y) *
+            Ogre::Quaternion(Ogre::Degree(-_game.getAngleY()), Ogre::Vector3::UNIT_X);
+
+        cameraNode->setOrientation(quaternion);
+
+        auto& move = _game.move;
+
+        cameraNode->translate({(float)move.left - move.right, 0, 0}, Ogre::Node::TS_LOCAL);
+        cameraNode->translate({0, 0, (float)move.back - move.front}, Ogre::Node::TS_LOCAL);
+
+        light->setSpotlightRange(Ogre::Degree(_game.size), Ogre::Degree(_game.size + 35));
+
+        _context.pollEvents();
+
+        world->getBtWorld()->stepSimulation(1);
+    }
+
+    _scene->update();
 }
 
 void MazeGame::App::initRTSShaderGenerator()

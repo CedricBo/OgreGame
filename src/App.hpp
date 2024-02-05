@@ -1,7 +1,6 @@
 #pragma once
 
 #include <OgreApplicationContext.h>
-#include <Bullet/OgreBullet.h>
 
 #include "Game.hpp"
 #include "FrameListener.hpp"
@@ -24,6 +23,10 @@ namespace MazeGame
             MazeGame::GameScene* getScene() const;
 
             void initViewPort(Ogre::Camera* camera);
+
+            void update();
+
+            void run();
         private:
             OgreBites::ApplicationContext _context;
             Game _game;
@@ -31,7 +34,6 @@ namespace MazeGame
             MazeGame::GameSceneManagerFactory _gameSceneManagerFactory;
 
             MazeGame::GameScene* _scene;
-            Ogre::Bullet::DynamicsWorld _world;
 
             Ogre::Viewport* _viewport;
 

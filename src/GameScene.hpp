@@ -1,6 +1,7 @@
 #pragma once
 
 #include <OgreSceneManager.h>
+#include <Bullet/OgreBullet.h>
 
 namespace MazeGame
 {
@@ -17,11 +18,20 @@ namespace MazeGame
         void initTorchLight(Ogre::SceneNode* parent);
         void initCamera(Ogre::SceneNode* parent);
 
+        void initMap();
+        void initGound();
+
         Ogre::Camera* getCamera() const;
 
         Ogre::SceneNode* getCameraNode() const;
         Ogre::Light* getTorchLight() const;
+
+        void update();
+
+        Ogre::Bullet::DynamicsWorld* getWorld();
     private:
+        Ogre::Bullet::DynamicsWorld _world;
+
         Ogre::Camera* _camera;
         Ogre::Light* _torchLight;
 
