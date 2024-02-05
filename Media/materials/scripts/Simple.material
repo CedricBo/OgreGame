@@ -1,0 +1,23 @@
+material SimpleBox
+{
+    technique
+    {
+        pass
+        {
+            specular 1.0 1.0 1.0 1.0 1
+            diffuse 1.0 1.0 1.0 1.0
+        }
+    }
+}
+
+material SimpleGround
+{
+    technique
+    {
+        pass
+        {
+            specular 1.0 1.0 1.0 1.0 1
+            diffuse 1.0 1.0 1.0 1.0
+        }
+    }
+}

@@ -1,12 +1,12 @@
 #include "GameSceneManagerFactory.hpp"
 
-#include <OgreSceneManager.h>
-
 #include <iostream>
 
-using namespace Game;
+#include <OgreSceneManager.h>
 
-std::string GameScene::typeName = "MazeScene";
+#include "GameScene.hpp"
+
+using namespace MazeGame;
 
 GameSceneManagerFactory::GameSceneManagerFactory()
 {
@@ -16,7 +16,7 @@ GameSceneManagerFactory::~GameSceneManagerFactory()
 {
 }
 
-const std::string& GameSceneManagerFactory::getTypeName(void) const
+const std::string& GameSceneManagerFactory::getTypeName() const
 {
     return GameScene::typeName;
 }
@@ -24,19 +24,4 @@ const std::string& GameSceneManagerFactory::getTypeName(void) const
 Ogre::SceneManager* GameSceneManagerFactory::createInstance(const std::string &instanceName)
 {
     return new GameScene(instanceName);
-}
-
-GameScene::GameScene(std::string instanceName)
-    : Ogre::SceneManager(instanceName)
-{
-    std::cout << "Create GameScene" << std::endl;
-}
-
-GameScene::~GameScene()
-{
-}
-
-const std::string& GameScene::getTypeName(void) const
-{
-    return GameScene::typeName;
 }

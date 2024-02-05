@@ -2,7 +2,7 @@
 
 #include <OgreFrameListener.h>
 
-namespace Game
+namespace MazeGame
 {
     class Game
     {
@@ -28,7 +28,7 @@ namespace Game
 
         float size;
 
-        bool detach;
+        bool action;
     private:
         bool _end;
 

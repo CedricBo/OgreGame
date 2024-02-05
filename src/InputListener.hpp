@@ -4,7 +4,7 @@
 
 #include "Game.hpp"
 
-namespace Game
+namespace MazeGame
 {
     class InputListener : public OgreBites::InputListener
     {

@@ -3,7 +3,7 @@
 #include <iostream>
 #include <algorithm>
 
-using namespace Game;
+using namespace MazeGame;
 
 InputListener::InputListener(Game& game)
     : _game(game)
@@ -36,7 +36,7 @@ bool InputListener::keyPressed(const OgreBites::KeyboardEvent &evt)
         _game.get().move.back = true;
         break;
     case 32:
-        _game.get().detach = true;
+        _game.get().action = true;
         break;
     default:
         break;

@@ -2,26 +2,15 @@
 
 #include <OgreSceneManager.h>
 
-namespace Game
+namespace MazeGame
 {
-    class GameScene : public Ogre::SceneManager
-    {
-    public:
-        static std::string typeName;
-
-        GameScene(std::string instanceName);
-        ~GameScene();
-
-        const std::string& getTypeName(void) const;
-    };
-
     class GameSceneManagerFactory : public Ogre::SceneManagerFactory
     {
     public:
         GameSceneManagerFactory();
         ~GameSceneManagerFactory();
 
-        const std::string& getTypeName(void) const;
+        const std::string& getTypeName() const;
 
         Ogre::SceneManager* createInstance(const std::string& instanceName);
     private:

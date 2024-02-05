@@ -1,6 +1,6 @@
 #include "FrameListener.hpp"
 
-using namespace Game;
+using namespace MazeGame;
 
 FrameListener::FrameListener(Game& game)
     : _game(game)

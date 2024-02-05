@@ -2,46 +2,46 @@
 
 #include <iostream>
 
-Game::Game::Game()
+MazeGame::Game::Game()
     : _end(false),
     _angleX(0),
     _angleY(0),
     move({false, false, false, false}),
     size(5),
-    detach(false)
+    action(false)
 {
 }
 
-Game::Game::~Game()
+MazeGame::Game::~Game()
 {
 }
 
-void Game::Game::end()
+void MazeGame::Game::end()
 {
     _end = true;
 }
 
-const bool &Game::Game::isEnded() const
+const bool &MazeGame::Game::isEnded() const
 {
     return _end;
 }
 
-float Game::Game::getAngleX() const
+float MazeGame::Game::getAngleX() const
 {
     return _angleX;
 }
 
-float Game::Game::rotateX(float angleX)
+float MazeGame::Game::rotateX(float angleX)
 {
     return _angleX += angleX;
 }
 
-float Game::Game::getAngleY() const
+float MazeGame::Game::getAngleY() const
 {
     return _angleY;
 }
 
-float Game::Game::rotateY(float angleY)
+float MazeGame::Game::rotateY(float angleY)
 {
     return _angleY += angleY;
 }
