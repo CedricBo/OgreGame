@@ -14,10 +14,18 @@ namespace MazeGame
 
         const std::string& getTypeName() const;
 
-        void initTorchLight();
-        void initCamera();
+        void initTorchLight(Ogre::SceneNode* parent);
+        void initCamera(Ogre::SceneNode* parent);
+
+        Ogre::Camera* getCamera() const;
+
+        Ogre::SceneNode* getCameraNode() const;
+        Ogre::Light* getTorchLight() const;
     private:
         Ogre::Camera* _camera;
         Ogre::Light* _torchLight;
+
+        Ogre::SceneNode* _cameraNode;
+        Ogre::SceneNode* _torchLightNode;
     };
 }

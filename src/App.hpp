@@ -23,6 +23,7 @@ namespace MazeGame
 
             MazeGame::GameScene* getScene() const;
 
+            void initViewPort(Ogre::Camera* camera);
         private:
             OgreBites::ApplicationContext _context;
             Game _game;
@@ -31,6 +32,8 @@ namespace MazeGame
 
             MazeGame::GameScene* _scene;
             Ogre::Bullet::DynamicsWorld _world;
+
+            Ogre::Viewport* _viewport;
 
             void initRTSShaderGenerator();
     };

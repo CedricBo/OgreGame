@@ -56,18 +56,8 @@ int main(int, char**)
         body->setLinearVelocity({0, 40, 0});
     }
 
-    camera->setAutoAspectRatio(true);
-    auto viewport = context.getRenderWindow()->addViewport(camera);
-    viewport->setBackgroundColour(Ogre::ColourValue(0,0,0));
-
-    viewport->setMaterialScheme(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
-
-    std::cout << "Viewport Material Sheme " << Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME << std::endl;
-
-    cameraNode->lookAt(Ogre::Vector3(0, 0, 0), Ogre::Node::TransformSpace::TS_WORLD);
-
-    cameraNode->setPosition({100, 150, 200});
-    cameraNode->lookAt({0, 0, 0}, Ogre::Node::TS_WORLD);
+    auto cameraNode = sceneManager->getCameraNode();
+    auto light = sceneManager->getTorchLight();
 
     std::array<long long, 200> times;
     auto timesIt = times.begin();
@@ -77,6 +67,7 @@ int main(int, char**)
     {
         auto start = std::chrono::steady_clock::now();
         running = root->renderOneFrame() && !game.isEnded();
+
         sceneRoot->needUpdate(true);
 
         auto quaternion =
