@@ -70,7 +70,7 @@ void MazeGame::App::run()
         cameraNode->translate({(float)move.left - move.right, 0, 0}, Ogre::Node::TS_LOCAL);
         cameraNode->translate({0, 0, (float)move.back - move.front}, Ogre::Node::TS_LOCAL);
 
-        light->setSpotlightRange(Ogre::Degree(_game.size), Ogre::Degree(_game.size + 35));
+        light->setSpotlightRange(Ogre::Degree(_game.size), Ogre::Degree(_game.size + 5));
 
         _context.pollEvents();
 

@@ -25,13 +25,7 @@ GameScene::GameScene(std::string instanceName)
     initCamera(_cameraNode);
     initMap();
     initGound();
-
-    // Add second fix light
-    auto light2 = createLight(Ogre::Light::LightTypes::LT_SPOTLIGHT);
-    auto light2Node = getRootSceneNode()->createChildSceneNode({ -149.8, 157.86, 69.1937 }, Ogre::Quaternion(Ogre::Degree(-90), Ogre::Vector3::UNIT_Y));
-
-    light2->setSpecularColour(Ogre::ColourValue::Red);
-    light2Node->attachObject(light2);
+    addFire();
 }
 
 GameScene::~GameScene()
@@ -48,9 +42,11 @@ void MazeGame::GameScene::initTorchLight(Ogre::SceneNode* parent)
     _torchLight = createLight(Ogre::Light::LightTypes::LT_SPOTLIGHT);
 
     _torchLight->setSpecularColour(Ogre::ColourValue::White);
-    _torchLight->setAttenuation(25000, 0.9f, 0.03f, 0);
+    _torchLight->setAttenuation(25000, 0.09f, 0.03f, 0);
 
-    parent->attachObject(_torchLight);
+    auto _torchLightSubNode = parent->createChildSceneNode({10, 0, 0}, Ogre::Quaternion::IDENTITY);
+
+    _torchLightSubNode->attachObject(_torchLight);
 }
 
 void MazeGame::GameScene::initCamera(Ogre::SceneNode* parent)
@@ -118,12 +114,38 @@ Ogre::SceneNode *MazeGame::GameScene::getCameraNode() const
 
 Ogre::Light *MazeGame::GameScene::getTorchLight() const
 {
-    return _torchLight;
+    return _fireLight;
 }
 
 void MazeGame::GameScene::update()
 {
 
+}
+
+void MazeGame::GameScene::addFire()
+{
+    _fire = createEntity("cube.mesh");
+
+    _fire->setMaterialName("SimpleBox");
+
+    _fireNode = getRootSceneNode()->createChildSceneNode({ 0, 20, 0}, Ogre::Quaternion::IDENTITY);
+
+    _fireNode->attachObject(_fire);
+
+    _fireLight = createLight(Ogre::Light::LightTypes::LT_SPOTLIGHT);
+    _fireLight->setSpecularColour(Ogre::ColourValue::Red);
+    _fireLight->setSpotlightRange(Ogre::Degree(280), Ogre::Degree(285));
+
+    auto fireLightAngle = Ogre::Quaternion::IDENTITY * Ogre::Quaternion(Ogre::Degree(90), {1, 0, 0});
+
+    auto _fireLightNode = _fireNode->createChildSceneNode({ 0, 20, 0}, fireLightAngle);
+
+    _fireLightNode->attachObject(_fireLight);
+
+}
+
+void MazeGame::GameScene::addTree()
+{
 }
 
 Ogre::Bullet::DynamicsWorld* MazeGame::GameScene::getWorld()

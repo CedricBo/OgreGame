@@ -28,12 +28,19 @@ namespace MazeGame
 
         void update();
 
+        void addFire();
+        void addTree();
+
         Ogre::Bullet::DynamicsWorld* getWorld();
     private:
         Ogre::Bullet::DynamicsWorld _world;
 
         Ogre::Camera* _camera;
         Ogre::Light* _torchLight;
+
+        Ogre::Entity* _fire;
+        Ogre::Light* _fireLight;
+        Ogre::SceneNode* _fireNode;
 
         Ogre::SceneNode* _cameraNode;
         Ogre::SceneNode* _torchLightNode;
