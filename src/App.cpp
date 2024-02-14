@@ -67,10 +67,18 @@ void MazeGame::App::run()
 
         auto& move = _game.move;
 
-        cameraNode->translate({(float)move.left - move.right, 0, 0}, Ogre::Node::TS_LOCAL);
-        cameraNode->translate({0, 0, (float)move.back - move.front}, Ogre::Node::TS_LOCAL);
+        auto moveVector = Ogre::Vector3f{(float)move.left - move.right, 0, (float)move.back - move.front} * 5.0f;
 
-        light->setSpotlightRange(Ogre::Degree(_game.size), Ogre::Degree(_game.size + 5));
+        cameraNode->translate(moveVector, Ogre::Node::TS_LOCAL);
+
+        if(_game.isLightOn())
+        {
+            light->setPowerScale(0.5f);
+        }
+        else
+        {
+            light->setPowerScale(0);
+        }
 
         _context.pollEvents();
 

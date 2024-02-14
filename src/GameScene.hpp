@@ -29,7 +29,7 @@ namespace MazeGame
         void update();
 
         void addFire();
-        void addTree();
+        void addTree(float angle, float distance);
 
         Ogre::Bullet::DynamicsWorld* getWorld();
     private:
@@ -41,6 +41,9 @@ namespace MazeGame
         Ogre::Entity* _fire;
         Ogre::Light* _fireLight;
         Ogre::SceneNode* _fireNode;
+
+        std::vector<Ogre::Entity*> _trees;
+        std::vector<Ogre::SceneNode*> _treeNodes;
 
         Ogre::SceneNode* _cameraNode;
         Ogre::SceneNode* _torchLightNode;

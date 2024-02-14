@@ -1,6 +1,7 @@
 #include "GameScene.hpp"
 
 #include <iostream>
+#include <random>
 
 using namespace MazeGame;
 
@@ -16,16 +17,30 @@ GameScene::GameScene(std::string instanceName)
 
     setShadowTechnique(Ogre::ShadowTechnique::SHADOWTYPE_STENCIL_ADDITIVE);
 
-    setAmbientLight(Ogre::ColourValue::White * 0.5f);
+    setAmbientLight(Ogre::ColourValue::White * 0.1f);
 
     _cameraNode = getRootSceneNode()->createChildSceneNode("CameraNode");
     _torchLightNode = _cameraNode->createChildSceneNode("TorchLightNode");
 
     initTorchLight(_torchLightNode);
     initCamera(_cameraNode);
-    initMap();
+    // initMap();
     initGound();
     addFire();
+
+    std::random_device rd{};
+    std::mt19937 gen{rd()};
+
+    std::uniform_real_distribution<float> angleDistribution{0, 360};
+    std::uniform_real_distribution<float> distanceDistribution{100, 500};
+
+    for(int i = 0; i < 50; i++)
+    {
+        float angle = angleDistribution(gen);
+        float distance = distanceDistribution(gen);
+
+        addTree(angle, distance);
+    }
 }
 
 GameScene::~GameScene()
@@ -92,6 +107,7 @@ void MazeGame::GameScene::initGound()
 
     auto groundMesh = Ogre::MeshManager::getSingleton().createPlane("Ground", Ogre::RGN_DEFAULT, ground, 1200, 1200);
     auto groundEntity = createEntity(groundMesh);
+    groundEntity->setCastShadows(true);
 
     groundEntity->setMaterialName("SimpleGround");
 
@@ -124,28 +140,41 @@ void MazeGame::GameScene::update()
 
 void MazeGame::GameScene::addFire()
 {
-    _fire = createEntity("cube.mesh");
+    // _fire = createEntity("cube.mesh");
 
-    _fire->setMaterialName("SimpleBox");
+    // _fire->setMaterialName("SimpleBox");
 
     _fireNode = getRootSceneNode()->createChildSceneNode({ 0, 20, 0}, Ogre::Quaternion::IDENTITY);
 
-    _fireNode->attachObject(_fire);
+    // _fireNode->attachObject(_fire);
 
-    _fireLight = createLight(Ogre::Light::LightTypes::LT_SPOTLIGHT);
+    _fireLight = createLight(Ogre::Light::LightTypes::LT_POINT);
     _fireLight->setSpecularColour(Ogre::ColourValue::Red);
-    _fireLight->setSpotlightRange(Ogre::Degree(280), Ogre::Degree(285));
+    _fireLight->setDiffuseColour(Ogre::ColourValue::Red);
+    _fireLight->setPowerScale(0.1f);
+    _fireLight->setAttenuation(25000, 0.009f, 0.003f, 0);
 
-    auto fireLightAngle = Ogre::Quaternion::IDENTITY * Ogre::Quaternion(Ogre::Degree(90), {1, 0, 0});
-
-    auto _fireLightNode = _fireNode->createChildSceneNode({ 0, 20, 0}, fireLightAngle);
+    auto _fireLightNode = _fireNode->createChildSceneNode({ 0, 20, 0}, Ogre::Quaternion::IDENTITY);
 
     _fireLightNode->attachObject(_fireLight);
 
 }
 
-void MazeGame::GameScene::addTree()
+void MazeGame::GameScene::addTree(float angle, float distance)
 {
+    auto tree = createEntity("cube.mesh");
+
+    _trees.push_back(tree);
+
+    tree->setMaterialName("SimpleBox");
+
+    float angleRad = Ogre::Math::DegreesToRadians(angle);
+
+    auto treeNode = getRootSceneNode()->createChildSceneNode({ distance * std::sin(angleRad), 20, distance * std::cos(angleRad)}, Ogre::Quaternion::IDENTITY);
+    treeNode->attachObject(tree);
+    treeNode->scale({ 0.1f, 1, 0.1f});
+
+    _treeNodes.push_back(treeNode);
 }
 
 Ogre::Bullet::DynamicsWorld* MazeGame::GameScene::getWorld()

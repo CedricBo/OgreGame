@@ -8,7 +8,7 @@ MazeGame::Game::Game()
     _angleY(0),
     move({false, false, false, false}),
     size(5),
-    action(false)
+    _light(true)
 {
 }
 
@@ -24,6 +24,16 @@ void MazeGame::Game::end()
 const bool &MazeGame::Game::isEnded() const
 {
     return _end;
+}
+
+void MazeGame::Game::switchLight()
+{
+    _light = !_light;
+}
+
+bool MazeGame::Game::isLightOn()
+{
+    return _light;
 }
 
 float MazeGame::Game::getAngleX() const

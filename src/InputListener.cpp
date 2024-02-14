@@ -20,6 +20,9 @@ bool InputListener::keyPressed(const OgreBites::KeyboardEvent &evt)
 
     switch (evt.keysym.sym)
     {
+    case 102:
+        _game.get().switchLight();
+        break;
     case 103:
         _game.get().end();
         break;
@@ -34,9 +37,6 @@ bool InputListener::keyPressed(const OgreBites::KeyboardEvent &evt)
         break;
     case 115:
         _game.get().move.back = true;
-        break;
-    case 32:
-        _game.get().action = true;
         break;
     default:
         break;

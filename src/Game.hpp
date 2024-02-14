@@ -13,6 +13,9 @@ namespace MazeGame
         void end();
         const bool& isEnded() const;
 
+        void switchLight();
+        bool isLightOn();
+
         float getAngleX() const;
         float rotateX(float angle);
 
@@ -27,12 +30,12 @@ namespace MazeGame
         } move;
 
         float size;
-
-        bool action;
     private:
         bool _end;
 
         float _angleX;
         float _angleY;
+
+        bool _light;
     };
 }
