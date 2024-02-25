@@ -16,8 +16,6 @@ InputListener::~InputListener()
 
 bool InputListener::keyPressed(const OgreBites::KeyboardEvent &evt)
 {
-    std::cout << "Key pressed " << evt.keysym.sym << std::endl;
-
     switch (evt.keysym.sym)
     {
     case 102:
@@ -47,8 +45,6 @@ bool InputListener::keyPressed(const OgreBites::KeyboardEvent &evt)
 
 bool InputListener::keyReleased(const OgreBites::KeyboardEvent &evt)
 {
-    std::cout << "Key released " << evt.keysym.sym << std::endl;
-
     switch (evt.keysym.sym)
     {
     case 122:
@@ -85,8 +81,6 @@ bool InputListener::mouseMoved(const OgreBites::MouseMotionEvent& evt)
 bool InputListener::mouseWheelRolled(const OgreBites::MouseWheelEvent& evt)
 {
     _game.get().size = std::clamp(_game.get().size + (evt.y / 1.0f), 0.0f, 360.0f);
-
-    std::cout << _game.get().size << std::endl;
 
     return true;
 }

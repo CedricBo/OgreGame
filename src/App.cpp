@@ -22,6 +22,8 @@ App::App()
 
     _scene = static_cast<MazeGame::GameScene*>(root->createSceneManager(MazeGame::GameScene::typeName));
 
+    _scene->init();
+
     initRTSShaderGenerator();
     initViewPort(_scene->getCamera());
 }
@@ -49,6 +51,8 @@ void MazeGame::App::run()
 {
     bool running = true;
     auto root = _context.getRoot();
+    auto playerNode = _scene->getPlayerNode();
+    auto playerBody = _scene->getPlayerBody();
     auto cameraNode = _scene->getCameraNode();
     auto light = _scene->getTorchLight();
     auto world = _scene->getWorld();
@@ -59,17 +63,38 @@ void MazeGame::App::run()
 
         _scene->getRootSceneNode()->needUpdate(true);
 
-        auto quaternion =
-            Ogre::Quaternion(Ogre::Degree(-_game.getAngleX()), Ogre::Vector3::UNIT_Y) *
-            Ogre::Quaternion(Ogre::Degree(-_game.getAngleY()), Ogre::Vector3::UNIT_X);
+        auto playerBodyQuaternion = Ogre::Quaternion(Ogre::Degree(-_game.getAngleX()), Ogre::Vector3::UNIT_Y);
+        auto playerNodeQuaternion = Ogre::Quaternion(Ogre::Degree(-_game.getAngleY()), Ogre::Vector3::UNIT_X);
 
-        cameraNode->setOrientation(quaternion);
+        // playerNode->setOrientation(quaternion);
+        playerBody->getWorldTransform().setRotation(Ogre::Bullet::convert(playerBodyQuaternion));
+        cameraNode->setOrientation(playerNodeQuaternion);
 
         auto& move = _game.move;
 
-        auto moveVector = Ogre::Vector3f{(float)move.left - move.right, 0, (float)move.back - move.front} * 5.0f;
+        if(move.back || move.front || move.left || move.right)
+        {
+            auto moveVector = Ogre::Vector3f{(float)move.left - move.right, 0, (float)move.back - move.front};
+            moveVector.normalise();
+            moveVector *= 10;
 
-        cameraNode->translate(moveVector, Ogre::Node::TS_LOCAL);
+            Ogre::Radian rX, rY, rZ;
+            Ogre::Matrix3 m;
+
+            Ogre::Bullet::convert(playerBody->getWorldTransform().getRotation()).ToRotationMatrix(m);
+            m.ToEulerAnglesXYZ(rX, rY, rZ);
+
+            // r.normalise();
+            auto degRy = rY.valueRadians();
+
+            auto rotatedMoveVector = Ogre::Vector3f{
+                std::cos(degRy) * moveVector.x - std::sin(degRy) * moveVector.z,
+                0,
+                std::sin(degRy) * moveVector.x + std::cos(degRy) * moveVector.z
+            };
+
+            playerBody->applyCentralForce(Ogre::Bullet::convert(-rotatedMoveVector) * 30);
+        }
 
         if(_game.isLightOn())
         {
