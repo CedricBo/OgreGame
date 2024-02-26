@@ -22,6 +22,8 @@ namespace MazeGame
         float getAngleY() const;
         float rotateY(float angle);
 
+        bool hasMove();
+
         struct Move {
             bool left;
             bool right;

@@ -55,3 +55,8 @@ float MazeGame::Game::rotateY(float angleY)
 {
     return _angleY += angleY;
 }
+
+bool MazeGame::Game::hasMove()
+{
+    return move.back || move.front || move.left || move.right;
+}

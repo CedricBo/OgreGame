@@ -3,6 +3,8 @@
 #include <iostream>
 #include <random>
 
+#include <btBulletDynamicsCommon.h>
+
 using namespace MazeGame;
 
 
@@ -95,6 +97,11 @@ void MazeGame::GameScene::initCamera(Ogre::SceneNode* parent)
     parent->lookAt({0, 0, 0}, Ogre::Node::TS_WORLD);
 
     parent->attachObject(_camera);
+
+    // auto state = new Ogre::Bullet::RigidBodyState{parent};
+    // auto rigidBody = new btRigidBody(5.0f, state, new btBoxShape({ 5, 5, 5 }));
+
+    // _world.getBtWorld()->addRigidBody(rigidBody);
 }
 
 void MazeGame::GameScene::initPlayer(Ogre::SceneNode* parent)
@@ -192,8 +199,8 @@ void MazeGame::GameScene::addFire(Ogre::SceneNode* parent)
     // _fireNode->attachObject(_fire);
 
     _fireLight = createLight(Ogre::Light::LightTypes::LT_POINT);
-    _fireLight->setSpecularColour(Ogre::ColourValue::Red);
-    _fireLight->setDiffuseColour(Ogre::ColourValue::Red);
+    _fireLight->setSpecularColour(Ogre::ColourValue(1, 0.5f, 0));
+    _fireLight->setDiffuseColour(Ogre::ColourValue(1, 0.5f, 0));
     _fireLight->setPowerScale(0.1f);
     _fireLight->setAttenuation(25000, 0.009f, 0.003f, 0);
 

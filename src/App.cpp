@@ -2,6 +2,7 @@
 
 #include <OgreRoot.h>
 #include <iostream>
+#include <random>
 
 using namespace MazeGame;
 
@@ -57,6 +58,13 @@ void MazeGame::App::run()
     auto light = _scene->getTorchLight();
     auto world = _scene->getWorld();
 
+    float lightPowerScale = 0.2f;
+
+    std::random_device rd{};
+    std::mt19937 gen{rd()};
+
+    std::uniform_real_distribution<float> dist{-0.008f, 0.008f};
+
     while(running)
     {
         running = root->renderOneFrame() && !_game.isEnded();
@@ -74,31 +82,23 @@ void MazeGame::App::run()
 
         if(move.back || move.front || move.left || move.right)
         {
-            auto moveVector = Ogre::Vector3f{(float)move.left - move.right, 0, (float)move.back - move.front};
-            moveVector.normalise();
-            moveVector *= 10;
-
-            Ogre::Radian rX, rY, rZ;
-            Ogre::Matrix3 m;
-
-            Ogre::Bullet::convert(playerBody->getWorldTransform().getRotation()).ToRotationMatrix(m);
-            m.ToEulerAnglesXYZ(rX, rY, rZ);
-
-            // r.normalise();
-            auto degRy = rY.valueRadians();
+            auto moveVector = Ogre::Vector3f((float)move.left - move.right, 0, (float)move.back - move.front).normalisedCopy() * 10;
+            auto radRy = -playerNode->getOrientation().getYaw().valueRadians();
 
             auto rotatedMoveVector = Ogre::Vector3f{
-                std::cos(degRy) * moveVector.x - std::sin(degRy) * moveVector.z,
+                std::cos(radRy) * moveVector.x - std::sin(radRy) * moveVector.z,
                 0,
-                std::sin(degRy) * moveVector.x + std::cos(degRy) * moveVector.z
+                std::sin(radRy) * moveVector.x + std::cos(radRy) * moveVector.z
             };
 
-            playerBody->applyCentralForce(Ogre::Bullet::convert(-rotatedMoveVector) * 30);
+            playerBody->applyCentralForce(Ogre::Bullet::convert(rotatedMoveVector) * 30);
         }
+
+        lightPowerScale = std::clamp(lightPowerScale + dist(gen), 0.02f, 0.2f);
 
         if(_game.isLightOn())
         {
-            light->setPowerScale(0.5f);
+            light->setPowerScale(lightPowerScale);
         }
         else
         {
