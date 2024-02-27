@@ -5,9 +5,11 @@ include(CTest)
 enable_testing()
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(OGRE_DIR $ENV{OGRE_HOME}/CMake)
+set(OGRE_FOLDER "NOT_FOUND" CACHE STRING "Ogre SDK installation folder")
+set(OGRE_DEPS_LIBS "NOT_FOUND" CACHE STRING "Ogre SDK dependencies libraries folder")
+set(OGRE_DIR ${OGRE_FOLDER}/cmake)
 
 find_package(OGRE REQUIRED)
 
@@ -17,7 +19,9 @@ add_executable(Game2
     ${SRC}
 )
 
-target_link_libraries(Game2 ${OGRE_LIBRARIES})
+file(GLOB_RECURSE LIBS ${OGRE_DEPS_LIBS}/*.lib)
+
+target_link_libraries(Game2 ${OGRE_LIBRARIES} ${LIBS})
 
 file(GLOB_RECURSE LIBS ${OGRE_PREFIX_DIR}/bin/*.dll)
 file(COPY ${LIBS} DESTINATION ${CMAKE_BINARY_DIR}/Release)
