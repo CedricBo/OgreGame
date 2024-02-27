@@ -52,8 +52,8 @@ void MazeGame::App::run()
 {
     bool running = true;
     auto root = _context.getRoot();
-    auto playerNode = _scene->getPlayerNode();
-    auto playerBody = _scene->getPlayerBody();
+    auto playerNode = _scene->getPlayer()->getNode();
+    auto playerBody = _scene->getPlayer()->getBody();
     auto cameraNode = _scene->getCameraNode();
     auto light = _scene->getTorchLight();
     auto world = _scene->getWorld();
@@ -74,7 +74,6 @@ void MazeGame::App::run()
         auto playerBodyQuaternion = Ogre::Quaternion(Ogre::Degree(-_game.getAngleX()), Ogre::Vector3::UNIT_Y);
         auto playerNodeQuaternion = Ogre::Quaternion(Ogre::Degree(-_game.getAngleY()), Ogre::Vector3::UNIT_X);
 
-        // playerNode->setOrientation(quaternion);
         playerBody->getWorldTransform().setRotation(Ogre::Bullet::convert(playerBodyQuaternion));
         cameraNode->setOrientation(playerNodeQuaternion);
 

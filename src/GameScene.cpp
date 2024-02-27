@@ -10,17 +10,6 @@ using namespace MazeGame;
 
 std::string const GameScene::typeName = "MazeScene";
 
-Ogre::SceneNode* GameScene::createSceneNodeImpl(void)
-{
-    return new Ogre::SceneNode(this);
-}
-
-Ogre::SceneNode* GameScene::createSceneNodeImpl(const std::string& name)
-{
-    return new Ogre::SceneNode(this);
-}
-
-
 GameScene::GameScene(std::string instanceName)
     : Ogre::SceneManager(instanceName),
     _world({0.0f, -9.0f, 0.0f})
@@ -29,7 +18,7 @@ GameScene::GameScene(std::string instanceName)
 
     setShadowTechnique(Ogre::ShadowTechnique::SHADOWTYPE_STENCIL_ADDITIVE);
 
-    setAmbientLight(Ogre::ColourValue::White * 0.1f);
+    setAmbientLight(Ogre::ColourValue::White * 0.0f);
 }
 
 GameScene::~GameScene()
@@ -43,21 +32,17 @@ const std::string& GameScene::getTypeName() const
 
 void MazeGame::GameScene::init()
 {
-    // auto* root = createSceneNode("Root");
     Ogre::SceneNode* root = getRootSceneNode();
 
-    auto name = getRootSceneNode()->getName();
-
-    _playerNode = root->createChildSceneNode("PlayerNode");
-    _cameraNode = _playerNode->createChildSceneNode("CameraNode");
+    auto playerNode = root->createChildSceneNode("PlayerNode");
+    _cameraNode = playerNode->createChildSceneNode("CameraNode");
     _torchLightNode = _cameraNode->createChildSceneNode("TorchLightNode");
 
     initTorchLight(_torchLightNode);
     initCamera(_cameraNode);
-    initPlayer(_playerNode);
-    // initMap();
-    initGound(getRootSceneNode());
-    addFire(getRootSceneNode());
+    initPlayer(playerNode);
+    initGound(root);
+    addFire(root);
 
     std::random_device rd{};
     std::mt19937 gen{rd()};
@@ -67,10 +52,12 @@ void MazeGame::GameScene::init()
 
     for(int i = 0; i < 50; i++)
     {
-        float angle = angleDistribution(gen);
+        float angleRad = Ogre::Degree(angleDistribution(gen)).valueRadians();
         float distance = distanceDistribution(gen);
 
-        addTree(root, angle, distance);
+        Ogre::Vector3f treePosition = { distance * std::sin(angleRad), 20, distance * std::cos(angleRad)};
+
+        addTree(root, treePosition);
     }
 }
 
@@ -79,7 +66,8 @@ void MazeGame::GameScene::initTorchLight(Ogre::SceneNode* parent)
     _torchLight = createLight(Ogre::Light::LightTypes::LT_SPOTLIGHT);
 
     _torchLight->setSpecularColour(Ogre::ColourValue::White);
-    _torchLight->setAttenuation(25000, 0.09f, 0.03f, 0);
+    _torchLight->setDiffuseColour(Ogre::ColourValue::White);
+    _torchLight->setAttenuation(25000, 0.05f, 0.042f, 0);
 
     auto _torchLightSubNode = parent->createChildSceneNode({10, 0, 0}, Ogre::Quaternion::IDENTITY);
 
@@ -93,52 +81,22 @@ void MazeGame::GameScene::initCamera(Ogre::SceneNode* parent)
     _camera->setNearClipDistance(5);
     _camera->setAutoAspectRatio(true);
 
-    parent->setPosition({ 0, 400, 400});
+    parent->setPosition({ 0, 250, 0});
     parent->lookAt({0, 0, 0}, Ogre::Node::TS_WORLD);
 
     parent->attachObject(_camera);
-
-    // auto state = new Ogre::Bullet::RigidBodyState{parent};
-    // auto rigidBody = new btRigidBody(5.0f, state, new btBoxShape({ 5, 5, 5 }));
-
-    // _world.getBtWorld()->addRigidBody(rigidBody);
 }
 
 void MazeGame::GameScene::initPlayer(Ogre::SceneNode* parent)
 {
-    _player = createEntity("cube.mesh");
-
-    _player->setMaterialName("SimpleBox");
-
-    parent->attachObject(_player);
-    parent->setPosition({0, 200, 0});
-
+    parent->setPosition({0, 100, 0});
     parent->scale({0.1f, 0.1f, 0.1f});
 
-    _playerBody = _world.addRigidBody(5, _player, Ogre::Bullet::CT_BOX);
-
-    _playerBody->setAngularFactor({0, 0, 0});
-
-    _playerBody->setFriction(0);
-}
-
-void MazeGame::GameScene::initMap(Ogre::SceneNode* parent)
-{
-    for(int i = 1; i <= 10; i++)
-    {
-        auto entity = createEntity("cube.mesh");
-
-        entity->setMaterialName("SimpleBox");
-
-        auto meshNode = parent->createChildSceneNode("EntityNode" + std::to_string(i), {60.0f * i, 130.0f * i, 0});
-        meshNode->attachObject(entity);
-
-        meshNode->scale(1, (0.1f * i), 1);
-
-        auto body = _world.addRigidBody(5, entity, Ogre::Bullet::CT_BOX);
-
-        // body->setLinearVelocity({0, 40, 0});
-    }
+    _player = std::make_unique<Player>(
+        createEntity("cube.mesh"),
+        parent,
+        _world
+    );
 }
 
 void MazeGame::GameScene::initGound(Ogre::SceneNode* parent)
@@ -158,27 +116,22 @@ void MazeGame::GameScene::initGound(Ogre::SceneNode* parent)
     _world.addRigidBody(0, groundEntity, Ogre::Bullet::CT_BOX);
 }
 
-Ogre::Camera *MazeGame::GameScene::getCamera() const
+Ogre::Camera* MazeGame::GameScene::getCamera() const
 {
     return _camera;
 }
 
-Ogre::SceneNode *MazeGame::GameScene::getCameraNode() const
+Ogre::SceneNode* MazeGame::GameScene::getCameraNode() const
 {
     return _cameraNode;
 }
 
-Ogre::SceneNode *MazeGame::GameScene::getPlayerNode() const
+Player* MazeGame::GameScene::getPlayer() const
 {
-    return _playerNode;
+    return _player.get();
 }
 
-btRigidBody *MazeGame::GameScene::getPlayerBody() const
-{
-    return _playerBody;
-}
-
-Ogre::Light *MazeGame::GameScene::getTorchLight() const
+Ogre::Light* MazeGame::GameScene::getTorchLight() const
 {
     return _fireLight;
 }
@@ -209,23 +162,15 @@ void MazeGame::GameScene::addFire(Ogre::SceneNode* parent)
     _fireLightNode->attachObject(_fireLight);
 }
 
-void MazeGame::GameScene::addTree(Ogre::SceneNode* parent, float angle, float distance)
+void MazeGame::GameScene::addTree(Ogre::SceneNode* parent, Ogre::Vector3f position)
 {
     auto tree = createEntity("cube.mesh");
+    auto treeNode = parent->createChildSceneNode(position, Ogre::Quaternion::IDENTITY);
 
-    _trees.push_back(tree);
-
-    tree->setMaterialName("SimpleBox");
-
-    float angleRad = Ogre::Math::DegreesToRadians(angle);
-
-    auto treeNode = parent->createChildSceneNode({ distance * std::sin(angleRad), 20, distance * std::cos(angleRad)}, Ogre::Quaternion::IDENTITY);
     treeNode->attachObject(tree);
     treeNode->scale({ 0.1f, 1, 0.1f});
 
-    _world.addRigidBody(0, tree, Ogre::Bullet::CT_BOX);
-
-    _treeNodes.push_back(treeNode);
+    _trees.emplace_back(tree, treeNode, _world);
 }
 
 Ogre::Bullet::DynamicsWorld* MazeGame::GameScene::getWorld()
