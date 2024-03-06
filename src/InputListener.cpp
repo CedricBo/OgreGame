@@ -6,7 +6,8 @@
 using namespace MazeGame;
 
 InputListener::InputListener(Game& game)
-    : _game(game)
+    : _game(game),
+    _mainMouseCliked(false)
 {
 }
 
@@ -71,8 +72,17 @@ bool InputListener::mouseMoved(const OgreBites::MouseMotionEvent& evt)
     float angleX = evt.xrel / 2.0f;
     float angleY = evt.yrel / 2.0f;
 
-    _game.get().rotateX(angleX);
-    _game.get().rotateY(angleY);
+    auto& game = _game.get();
+
+    if(_mainMouseCliked)
+    {
+        game.rotateShip(angleX, angleY);
+    }
+    else
+    {
+        game.rotateView(angleX, angleY);
+    }
+
 
     return true;
 }
@@ -81,6 +91,26 @@ bool InputListener::mouseMoved(const OgreBites::MouseMotionEvent& evt)
 bool InputListener::mouseWheelRolled(const OgreBites::MouseWheelEvent& evt)
 {
     _game.get().size = std::clamp(_game.get().size + (evt.y / 1.0f), 0.0f, 360.0f);
+
+    return true;
+}
+
+bool InputListener::mousePressed(const OgreBites::MouseButtonEvent& evt)
+{
+    if(evt.button == 1)
+    {
+        _mainMouseCliked = true;
+    }
+
+    return true;
+}
+
+bool InputListener::mouseReleased(const OgreBites::MouseButtonEvent& evt)
+{
+    if(evt.button == 1)
+    {
+        _mainMouseCliked = false;
+    }
 
     return true;
 }

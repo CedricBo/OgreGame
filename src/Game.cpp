@@ -4,10 +4,12 @@
 
 MazeGame::Game::Game()
     : _end(false),
-    _angleX(0),
-    _angleY(0),
     move({false, false, false, false}),
     size(5),
+    _viewAngleX(0),
+    _viewAngleY(0),
+    _shipAngleX(0),
+    _shipAngleY(0),
     _light(true)
 {
 }
@@ -36,24 +38,26 @@ bool MazeGame::Game::isLightOn()
     return _light;
 }
 
-float MazeGame::Game::getAngleX() const
+void MazeGame::Game::rotateView(float angleX, float angleY)
 {
-    return _angleX;
+    _viewAngleX += angleX;
+    _viewAngleY += angleY;
 }
 
-float MazeGame::Game::rotateX(float angleX)
+void MazeGame::Game::rotateShip(float angleX, float angleY)
 {
-    return _angleX += angleX;
+    _shipAngleX += angleX;
+    _shipAngleY += angleY;
 }
 
-float MazeGame::Game::getAngleY() const
+std::pair<float, float> MazeGame::Game::getViewAngle()
 {
-    return _angleY;
+    return {_viewAngleX, _viewAngleY};
 }
 
-float MazeGame::Game::rotateY(float angleY)
+std::pair<float, float> MazeGame::Game::getShipAngle()
 {
-    return _angleY += angleY;
+    return {_shipAngleX, _shipAngleY};
 }
 
 bool MazeGame::Game::hasMove()

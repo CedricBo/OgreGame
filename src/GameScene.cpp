@@ -12,7 +12,7 @@ std::string const GameScene::typeName = "MazeScene";
 
 GameScene::GameScene(std::string instanceName)
     : Ogre::SceneManager(instanceName),
-    _world({0.0f, -9.0f, 0.0f})
+    _world({0.0f, 0.0f, 0.0f})
 {
     std::cout << "Create GameScene" << std::endl;
 

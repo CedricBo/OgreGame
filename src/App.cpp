@@ -71,8 +71,10 @@ void MazeGame::App::run()
 
         _scene->getRootSceneNode()->needUpdate(true);
 
-        auto playerBodyQuaternion = Ogre::Quaternion(Ogre::Degree(-_game.getAngleX()), Ogre::Vector3::UNIT_Y);
-        auto playerNodeQuaternion = Ogre::Quaternion(Ogre::Degree(-_game.getAngleY()), Ogre::Vector3::UNIT_X);
+        auto& [viewAngleX, viewAngleY] = _game.getViewAngle();
+
+        auto playerBodyQuaternion = Ogre::Quaternion(Ogre::Degree(viewAngleX), -Ogre::Vector3::UNIT_Y);
+        auto playerNodeQuaternion = Ogre::Quaternion(Ogre::Degree(viewAngleY), -Ogre::Vector3::UNIT_X);
 
         playerBody->getWorldTransform().setRotation(Ogre::Bullet::convert(playerBodyQuaternion));
         cameraNode->setOrientation(playerNodeQuaternion);
@@ -107,6 +109,7 @@ void MazeGame::App::run()
         _context.pollEvents();
 
         world->getBtWorld()->stepSimulation(1);
+        world->getBtWorld()->debugDrawWorld();
     }
 
     _scene->update();

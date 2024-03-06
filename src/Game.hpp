@@ -16,11 +16,11 @@ namespace MazeGame
         void switchLight();
         bool isLightOn();
 
-        float getAngleX() const;
-        float rotateX(float angle);
+        void rotateView(float angleX, float angleY);
+        void rotateShip(float angleX, float angleY);
 
-        float getAngleY() const;
-        float rotateY(float angle);
+        std::pair<float, float> getViewAngle();
+        std::pair<float, float> getShipAngle();
 
         bool hasMove();
 
@@ -35,8 +35,11 @@ namespace MazeGame
     private:
         bool _end;
 
-        float _angleX;
-        float _angleY;
+        float _viewAngleX;
+        float _viewAngleY;
+
+        float _shipAngleX;
+        float _shipAngleY;
 
         bool _light;
     };

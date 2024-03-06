@@ -1,5 +1,4 @@
 #pragma once
-
 #include <OgreSceneManager.h>
 
 namespace MazeGame
@@ -14,6 +13,5 @@ namespace MazeGame
 
         Ogre::SceneManager* createInstance(const std::string& instanceName);
     private:
-        /* data */
     };
 }

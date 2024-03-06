@@ -5,7 +5,8 @@ material SimpleBox
         pass
         {
             specular 1.0 1.0 1.0 1.0 0.01
-            diffuse 1.0 1.0 1.0 1.0
+
+            diffuse 1.00 1.00 1.00 1.00
         }
     }
 }
@@ -17,7 +18,7 @@ material SimpleGround
         pass
         {
             specular 1.0 1.0 1.0 1.0 0.1
-            diffuse 1.0 1.0 1.0 1.0
+            diffuse 1.00 1.00 1.00 1.00
         }
     }
 }
