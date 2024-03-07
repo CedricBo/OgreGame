@@ -2,11 +2,11 @@
 
 #include <iostream>
 #include <random>
-
 #include <btBulletDynamicsCommon.h>
 
-using namespace MazeGame;
+#include "PlayerRayResultCallback.hpp"
 
+using namespace MazeGame;
 
 std::string const GameScene::typeName = "MazeScene";
 
@@ -18,7 +18,7 @@ GameScene::GameScene(std::string instanceName)
 
     setShadowTechnique(Ogre::ShadowTechnique::SHADOWTYPE_STENCIL_ADDITIVE);
 
-    setAmbientLight(Ogre::ColourValue::White * 0.0f);
+    setAmbientLight(Ogre::ColourValue::White * 0.5f);
 }
 
 GameScene::~GameScene()
@@ -30,67 +30,38 @@ const std::string& GameScene::getTypeName() const
     return GameScene::typeName;
 }
 
-void MazeGame::GameScene::init()
+void GameScene::init()
 {
     Ogre::SceneNode* root = getRootSceneNode();
 
     auto playerNode = root->createChildSceneNode("PlayerNode");
-    _cameraNode = playerNode->createChildSceneNode("CameraNode");
-    _torchLightNode = _cameraNode->createChildSceneNode("TorchLightNode");
-
-    initTorchLight(_torchLightNode);
-    initCamera(_cameraNode);
     initPlayer(playerNode);
+
+    // _cameraNode = playerNode->createChildSceneNode("CameraNode");
+    initCamera(playerNode);
+
     initGound(root);
-    addFire(root);
-
-    std::random_device rd{};
-    std::mt19937 gen{rd()};
-
-    std::uniform_real_distribution<float> angleDistribution{0, 360};
-    std::uniform_real_distribution<float> distanceDistribution{100, 500};
-
-    for(int i = 0; i < 50; i++)
-    {
-        float angleRad = Ogre::Degree(angleDistribution(gen)).valueRadians();
-        float distance = distanceDistribution(gen);
-
-        Ogre::Vector3f treePosition = { distance * std::sin(angleRad), 20, distance * std::cos(angleRad)};
-
-        addTree(root, treePosition);
-    }
+    addBattery(root, {200, 200, 0});
+    addBattery(root, {250, 200, 0});
+    addBattery(root, {300, 200, 0});
 }
 
-void MazeGame::GameScene::initTorchLight(Ogre::SceneNode* parent)
-{
-    _torchLight = createLight(Ogre::Light::LightTypes::LT_SPOTLIGHT);
-
-    _torchLight->setSpecularColour(Ogre::ColourValue::White);
-    _torchLight->setDiffuseColour(Ogre::ColourValue::White);
-    _torchLight->setAttenuation(25000, 0.05f, 0.042f, 0);
-
-    auto _torchLightSubNode = parent->createChildSceneNode({10, 0, 0}, Ogre::Quaternion::IDENTITY);
-
-    _torchLightSubNode->attachObject(_torchLight);
-}
-
-void MazeGame::GameScene::initCamera(Ogre::SceneNode* parent)
+void GameScene::initCamera(Ogre::SceneNode* parent)
 {
     _camera = createCamera("Camera");
 
     _camera->setNearClipDistance(5);
     _camera->setAutoAspectRatio(true);
 
-    parent->setPosition({ 0, 250, 0});
-    parent->lookAt({0, 0, 0}, Ogre::Node::TS_WORLD);
+    parent->setPosition({ 0, 100, 0});
 
     parent->attachObject(_camera);
 }
 
-void MazeGame::GameScene::initPlayer(Ogre::SceneNode* parent)
+void GameScene::initPlayer(Ogre::SceneNode* parent)
 {
-    parent->setPosition({0, 100, 0});
-    parent->scale({0.1f, 0.1f, 0.1f});
+    parent->setPosition({0, 300, 0});
+    parent->setScale({0.1f, 1, 0.1f});
 
     _player = std::make_unique<Player>(
         createEntity("cube.mesh"),
@@ -99,7 +70,7 @@ void MazeGame::GameScene::initPlayer(Ogre::SceneNode* parent)
     );
 }
 
-void MazeGame::GameScene::initGound(Ogre::SceneNode* parent)
+void GameScene::initGound(Ogre::SceneNode* parent)
 {
     Ogre::Plane ground{0, 0, 1, 1};
 
@@ -116,64 +87,80 @@ void MazeGame::GameScene::initGound(Ogre::SceneNode* parent)
     _world.addRigidBody(0, groundEntity, Ogre::Bullet::CT_BOX);
 }
 
-Ogre::Camera* MazeGame::GameScene::getCamera() const
+void MazeGame::GameScene::addBattery(Ogre::SceneNode *parent, Ogre::Vector3f position)
+{
+    auto& battery = _batteries.emplace_back(
+        createEntity("cube.mesh"),
+        parent->createChildSceneNode(position, Ogre::Quaternion::IDENTITY),
+        _world
+    );
+}
+
+Ogre::Camera* GameScene::getCamera() const
 {
     return _camera;
 }
 
-Ogre::SceneNode* MazeGame::GameScene::getCameraNode() const
+Ogre::SceneNode* GameScene::getCameraNode() const
 {
     return _cameraNode;
 }
 
-Player* MazeGame::GameScene::getPlayer() const
+Player* GameScene::getPlayer() const
 {
     return _player.get();
 }
 
-Ogre::Light* MazeGame::GameScene::getTorchLight() const
+void GameScene::update(MazeGame::Game& game)
 {
-    return _fireLight;
+    auto* playerBody = _player->getBody();
+    auto& [viewAngleX, viewAngleY] = game.getViewAngle();
+
+    if(!playerBody->isActive())
+    {
+        playerBody->activate();
+    }
+
+    auto playerBodyQuaternion = Ogre::Quaternion(Ogre::Degree(viewAngleX), -Ogre::Vector3::UNIT_Y);
+    auto playerNodeQuaternion = Ogre::Quaternion(Ogre::Degree(viewAngleY), -Ogre::Vector3::UNIT_X);
+
+    playerBody->getWorldTransform().setRotation(Ogre::Bullet::convert(playerBodyQuaternion));
+    // _cameraNode->setOrientation(playerNodeQuaternion);
+    _player->getNode()->setOrientation(playerNodeQuaternion);
+
+    auto& move = game.move;
+
+    if(move.back || move.front || move.left || move.right)
+    {
+        auto moveVector = Ogre::Vector3f((float)move.left - move.right, 0, (float)move.back - move.front).normalisedCopy() * 10;
+        auto radRy = -_player->getNode()->getOrientation().getYaw().valueRadians();
+
+        auto rotatedMoveVector = Ogre::Vector3f{
+            std::cos(radRy) * moveVector.x - std::sin(radRy) * moveVector.z,
+            0,
+            std::sin(radRy) * moveVector.x + std::cos(radRy) * moveVector.z
+        };
+
+        playerBody->applyCentralForce(Ogre::Bullet::convert(rotatedMoveVector) * 100);
+    }
+
+    PlayerRayResultCallback p{};
+
+    std::cout << _player->getNode()->getPosition() << std::endl;
+
+    Ogre::Ray ray{_player->getNode()->getPosition(), {0, -1, 0}};
+    _world.rayTest(ray, &p, 100);
+
+    // Player Max Speed
+    auto playerLinearVelocity = playerBody->getLinearVelocity();
+    auto speed = std::clamp((double)playerLinearVelocity.norm(), 0.0, 30.0);
+
+    playerLinearVelocity.safeNormalize();
+    playerLinearVelocity *= speed;
+    playerBody->setLinearVelocity(playerLinearVelocity);
 }
 
-void MazeGame::GameScene::update()
-{
-
-}
-
-void MazeGame::GameScene::addFire(Ogre::SceneNode* parent)
-{
-    // _fire = createEntity("cube.mesh");
-
-    // _fire->setMaterialName("SimpleBox");
-
-    _fireNode = parent->createChildSceneNode({ 0, 20, 0}, Ogre::Quaternion::IDENTITY);
-
-    // _fireNode->attachObject(_fire);
-
-    _fireLight = createLight(Ogre::Light::LightTypes::LT_POINT);
-    _fireLight->setSpecularColour(Ogre::ColourValue(1, 0.5f, 0));
-    _fireLight->setDiffuseColour(Ogre::ColourValue(1, 0.5f, 0));
-    _fireLight->setPowerScale(0.1f);
-    _fireLight->setAttenuation(25000, 0.009f, 0.003f, 0);
-
-    auto _fireLightNode = _fireNode->createChildSceneNode({ 0, 20, 0}, Ogre::Quaternion::IDENTITY);
-
-    _fireLightNode->attachObject(_fireLight);
-}
-
-void MazeGame::GameScene::addTree(Ogre::SceneNode* parent, Ogre::Vector3f position)
-{
-    auto tree = createEntity("cube.mesh");
-    auto treeNode = parent->createChildSceneNode(position, Ogre::Quaternion::IDENTITY);
-
-    treeNode->attachObject(tree);
-    treeNode->scale({ 0.1f, 1, 0.1f});
-
-    _trees.emplace_back(tree, treeNode, _world);
-}
-
-Ogre::Bullet::DynamicsWorld* MazeGame::GameScene::getWorld()
+Ogre::Bullet::DynamicsWorld* GameScene::getWorld()
 {
     return &_world;
 }

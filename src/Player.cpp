@@ -15,7 +15,9 @@ Player::Player(
     _body = physicWorld.addRigidBody(5, _entity, Ogre::Bullet::CT_BOX);
 
     _body->setAngularFactor({0, 0, 0});
-    _body->setFriction(0);
+    _body->setFriction(1);
+
+    _body->setGravity({0, -9.0f, 0});
 }
 
 Player::~Player()

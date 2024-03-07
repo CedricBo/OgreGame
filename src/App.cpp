@@ -26,6 +26,7 @@ App::App()
     _scene->init();
 
     initRTSShaderGenerator();
+
     initViewPort(_scene->getCamera());
 }
 
@@ -52,18 +53,7 @@ void MazeGame::App::run()
 {
     bool running = true;
     auto root = _context.getRoot();
-    auto playerNode = _scene->getPlayer()->getNode();
-    auto playerBody = _scene->getPlayer()->getBody();
-    auto cameraNode = _scene->getCameraNode();
-    auto light = _scene->getTorchLight();
     auto world = _scene->getWorld();
-
-    float lightPowerScale = 0.2f;
-
-    std::random_device rd{};
-    std::mt19937 gen{rd()};
-
-    std::uniform_real_distribution<float> dist{-0.008f, 0.008f};
 
     while(running)
     {
@@ -71,52 +61,18 @@ void MazeGame::App::run()
 
         _scene->getRootSceneNode()->needUpdate(true);
 
-        auto& [viewAngleX, viewAngleY] = _game.getViewAngle();
-
-        auto playerBodyQuaternion = Ogre::Quaternion(Ogre::Degree(viewAngleX), -Ogre::Vector3::UNIT_Y);
-        auto playerNodeQuaternion = Ogre::Quaternion(Ogre::Degree(viewAngleY), -Ogre::Vector3::UNIT_X);
-
-        playerBody->getWorldTransform().setRotation(Ogre::Bullet::convert(playerBodyQuaternion));
-        cameraNode->setOrientation(playerNodeQuaternion);
-
-        auto& move = _game.move;
-
-        if(move.back || move.front || move.left || move.right)
-        {
-            auto moveVector = Ogre::Vector3f((float)move.left - move.right, 0, (float)move.back - move.front).normalisedCopy() * 10;
-            auto radRy = -playerNode->getOrientation().getYaw().valueRadians();
-
-            auto rotatedMoveVector = Ogre::Vector3f{
-                std::cos(radRy) * moveVector.x - std::sin(radRy) * moveVector.z,
-                0,
-                std::sin(radRy) * moveVector.x + std::cos(radRy) * moveVector.z
-            };
-
-            playerBody->applyCentralForce(Ogre::Bullet::convert(rotatedMoveVector) * 30);
-        }
-
-        lightPowerScale = std::clamp(lightPowerScale + dist(gen), 0.02f, 0.2f);
-
-        if(_game.isLightOn())
-        {
-            light->setPowerScale(lightPowerScale);
-        }
-        else
-        {
-            light->setPowerScale(0);
-        }
+        _scene->update(_game);
 
         _context.pollEvents();
 
         world->getBtWorld()->stepSimulation(1);
-        world->getBtWorld()->debugDrawWorld();
     }
-
-    _scene->update();
 }
 
 void MazeGame::App::initRTSShaderGenerator()
 {
+    Ogre::RTShader::ShaderGenerator::initialize();
+
     auto shaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
 
     shaderGenerator->addSceneManager(_scene);

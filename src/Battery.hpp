@@ -3,11 +3,12 @@
 #include <Ogre.h>
 #include <OgreBullet.h>
 
+#include "EntityMembers.hpp"
+
 class Battery
 {
     public:
         Battery(Ogre::Entity* entity, Ogre::SceneNode* parent, Ogre::Bullet::DynamicsWorld& physicWorld);
-        ~Battery();
 
         Ogre::Entity* getEntity();
         Ogre::SceneNode* getNode();
@@ -18,13 +19,9 @@ class Battery
 
         bool isEmpty();
         bool isFull();
-
-
     private:
-        Ogre::Entity* _entity;
-        Ogre::SceneNode* _node;
-        btRigidBody* _body;
+        EntityMembers _entityMembers { nullptr, nullptr, nullptr };
 
-        int _capacity;
-        int _level;
+        int _capacity{0};
+        int _level{0};
 };

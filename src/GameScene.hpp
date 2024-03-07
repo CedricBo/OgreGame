@@ -3,8 +3,9 @@
 #include <OgreSceneManager.h>
 #include <Bullet/OgreBullet.h>
 
+#include "Game.hpp"
 #include "Player.hpp"
-#include "Tree.hpp"
+#include "Battery.hpp"
 
 namespace MazeGame
 {
@@ -20,13 +21,11 @@ namespace MazeGame
 
         void init();
 
-        void initTorchLight(Ogre::SceneNode* parent);
         void initCamera(Ogre::SceneNode* parent);
         void initPlayer(Ogre::SceneNode* parent);
         void initGound(Ogre::SceneNode* parent);
 
-        void addFire(Ogre::SceneNode* parent);
-        void addTree(Ogre::SceneNode* parent, Ogre::Vector3f position);
+        void addBattery(Ogre::SceneNode* parent, Ogre::Vector3f position);
 
         Ogre::Camera* getCamera() const;
 
@@ -34,9 +33,7 @@ namespace MazeGame
 
         Player* getPlayer() const;
 
-        Ogre::Light* getTorchLight() const;
-
-        void update();
+        void update(MazeGame::Game& game);
 
         Ogre::Bullet::DynamicsWorld* getWorld();
     private:
@@ -46,14 +43,8 @@ namespace MazeGame
         Ogre::Camera* _camera;
 
         std::unique_ptr<Player> _player;
+        Ogre::Vector3f _playerRayPoint;
 
-        Ogre::SceneNode* _torchLightNode;
-        Ogre::Light* _torchLight;
-
-        Ogre::Entity* _fire;
-        Ogre::Light* _fireLight;
-        Ogre::SceneNode* _fireNode;
-
-        std::vector<Tree> _trees;
+        std::vector<Battery> _batteries;
     };
 }

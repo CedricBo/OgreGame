@@ -19,6 +19,11 @@ material SimpleGround
         {
             specular 1.0 1.0 1.0 1.0 0.1
             diffuse 1.00 1.00 1.00 1.00
+
+            texture_unit
+            {
+                texture BumpyMetal.jpg
+            }
         }
     }
 }
