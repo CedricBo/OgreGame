@@ -17,7 +17,7 @@ Player::Player(
     _body->setAngularFactor({0, 0, 0});
     _body->setFriction(1);
 
-    _body->setGravity({0, -9.0f, 0});
+    _body->setGravity({0, 0, -9.0f});
 }
 
 Player::~Player()

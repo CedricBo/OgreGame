@@ -42,6 +42,8 @@ namespace MazeGame
         Ogre::SceneNode* _cameraNode;
         Ogre::Camera* _camera;
 
+        Ogre::Entity* _groundEntity;
+
         std::unique_ptr<Player> _player;
         Ogre::Vector3f _playerRayPoint;
 

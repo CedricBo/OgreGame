@@ -10,9 +10,9 @@ class Battery
     public:
         Battery(Ogre::Entity* entity, Ogre::SceneNode* parent, Ogre::Bullet::DynamicsWorld& physicWorld);
 
-        Ogre::Entity* getEntity();
-        Ogre::SceneNode* getNode();
-        btRigidBody* getBody();
+        Ogre::Entity* getEntity() const;
+        Ogre::SceneNode* getNode() const;
+        btRigidBody* getBody() const;
 
         const int getCapacity();
         const int getLevel();

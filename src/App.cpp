@@ -65,7 +65,7 @@ void MazeGame::App::run()
 
         _context.pollEvents();
 
-        world->getBtWorld()->stepSimulation(1);
+        world->getBtWorld()->stepSimulation(0.16f);
     }
 }
 

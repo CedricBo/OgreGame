@@ -6,8 +6,8 @@ MazeGame::Game::Game()
     : _end(false),
     move({false, false, false, false}),
     size(5),
-    _viewAngleX(0),
-    _viewAngleY(0),
+    _viewAngleX(90),
+    _viewAngleY(-90),
     _shipAngleX(0),
     _shipAngleY(0),
     _light(true)

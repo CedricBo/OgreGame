@@ -7,24 +7,22 @@ Battery::Battery(Ogre::Entity *entity, Ogre::SceneNode *parent, Ogre::Bullet::Dy
 
     parent->attachObject(entity);
 
-    parent->scale(0.1f, 0.1f, 0.1f);
+    _entityMembers.body = physicWorld.addRigidBody(5, entity, Ogre::Bullet::CT_CYLINDER);
 
-    _entityMembers.body = physicWorld.addRigidBody(5, entity, Ogre::Bullet::CT_BOX);
-
-    _entityMembers.body->setGravity({0, -9.0f, 0});
+    _entityMembers.body->setGravity({0, 0, -9.0f});
 }
 
-Ogre::Entity* Battery::getEntity()
+Ogre::Entity* Battery::getEntity() const
 {
     return _entityMembers.entity;
 }
 
-Ogre::SceneNode *Battery::getNode()
+Ogre::SceneNode *Battery::getNode() const
 {
     return _entityMembers.node;
 }
 
-btRigidBody *Battery::getBody()
+btRigidBody *Battery::getBody() const
 {
     return _entityMembers.body;
 }
