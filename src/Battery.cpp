@@ -9,7 +9,7 @@ Battery::Battery(Ogre::Entity *entity, Ogre::SceneNode *parent, Ogre::Bullet::Dy
 
     _entityMembers.body = physicWorld.addRigidBody(5, entity, Ogre::Bullet::CT_CYLINDER);
 
-    _entityMembers.body->setGravity({0, 0, -9.0f});
+    applyGravitySettings();
 }
 
 Ogre::Entity* Battery::getEntity() const
@@ -45,4 +45,10 @@ bool Battery::isEmpty()
 bool Battery::isFull()
 {
     return _level == _capacity;
+}
+
+void Battery::applyGravitySettings()
+{
+    _entityMembers.body->setAngularFactor(1);
+    _entityMembers.body->setGravity({0, 0, -9.0f});
 }

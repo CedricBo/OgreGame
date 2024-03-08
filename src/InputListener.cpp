@@ -41,6 +41,7 @@ bool InputListener::keyPressed(const OgreBites::KeyboardEvent &evt)
         break;
     case 103:
         game.requestRelease();
+        break;
     default:
         std::cout << evt.keysym.sym << std::endl;
         break;

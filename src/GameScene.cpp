@@ -117,6 +117,7 @@ void GameScene::update(MazeGame::Game& game)
 {
     auto* playerBody = _player->getBody();
     auto& [viewAngleX, viewAngleY] = game.getViewAngle();
+    static bool isGrabbed = true;
 
     if(!playerBody->isActive())
     {
@@ -155,12 +156,23 @@ void GameScene::update(MazeGame::Game& game)
 
     auto point = ray.getPoint(50);
 
-    const auto& grabbed = _batteries.front();
+    auto& grabbed = _batteries.front();
 
-    grabbed.getBody()->getWorldTransform().setOrigin(Ogre::Bullet::convert(point));
-    grabbed.getBody()->setGravity({0, 0, 0});
-    grabbed.getBody()->setAngularFactor(0);
-    grabbed.getBody()->activate(true);
+    if(isGrabbed)
+    {
+        grabbed.getBody()->getWorldTransform().setOrigin(Ogre::Bullet::convert(point));
+        grabbed.getBody()->setGravity({0, 0, 0});
+        grabbed.getBody()->setAngularFactor(0);
+        grabbed.getBody()->activate(true);
+    }
+
+    if(game.hasRequestRelease())
+    {
+        game.resetRequestRelease();
+        isGrabbed = false;
+
+        grabbed.applyGravitySettings();
+    }
 
     _world.rayTest(ray, &p, 500);
 

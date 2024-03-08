@@ -19,6 +19,9 @@ class Battery
 
         bool isEmpty();
         bool isFull();
+
+        void applyGravitySettings();
+
     private:
         EntityMembers _entityMembers { nullptr, nullptr, nullptr };
 
