@@ -24,23 +24,29 @@ namespace MazeGame
 
         bool hasMove();
 
+        void requestRelease();
+        void resetRequestRelease();
+
+        bool hasRequestRelease();
+
         struct Move {
-            bool left;
-            bool right;
-            bool front;
-            bool back;
+            bool left = false;
+            bool right = false;
+            bool front = false;
+            bool back = false;
         } move;
 
-        float size;
+        float size = 0;
     private:
-        bool _end;
+        bool _end = false;
+        bool _requestRelease = false;
 
-        float _viewAngleX;
-        float _viewAngleY;
+        float _viewAngleX = 90;
+        float _viewAngleY = -90;
 
-        float _shipAngleX;
-        float _shipAngleY;
+        float _shipAngleX = 0;
+        float _shipAngleY = 0;
 
-        bool _light;
+        bool _light = true;
     };
 }

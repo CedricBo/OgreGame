@@ -17,27 +17,32 @@ InputListener::~InputListener()
 
 bool InputListener::keyPressed(const OgreBites::KeyboardEvent &evt)
 {
+    auto& game = _game.get();
+
     switch (evt.keysym.sym)
     {
     case 102:
-        _game.get().switchLight();
+        game.switchLight();
         break;
-    case 103:
-        _game.get().end();
+    case 27:
+        game.end();
         break;
     case 122:
-        _game.get().move.front = true;
+        game.move.front = true;
         break;
     case 113:
-        _game.get().move.right = true;
+        game.move.right = true;
         break;
     case 100:
-        _game.get().move.left = true;
+        game.move.left = true;
         break;
     case 115:
-        _game.get().move.back = true;
+        game.move.back = true;
         break;
+    case 103:
+        game.requestRelease();
     default:
+        std::cout << evt.keysym.sym << std::endl;
         break;
     }
 

@@ -3,14 +3,6 @@
 #include <iostream>
 
 MazeGame::Game::Game()
-    : _end(false),
-    move({false, false, false, false}),
-    size(5),
-    _viewAngleX(90),
-    _viewAngleY(-90),
-    _shipAngleX(0),
-    _shipAngleY(0),
-    _light(true)
 {
 }
 
@@ -63,4 +55,19 @@ std::pair<float, float> MazeGame::Game::getShipAngle()
 bool MazeGame::Game::hasMove()
 {
     return move.back || move.front || move.left || move.right;
+}
+
+void MazeGame::Game::requestRelease()
+{
+    _requestRelease = true;
+}
+
+void MazeGame::Game::resetRequestRelease()
+{
+    _requestRelease = false;
+}
+
+bool MazeGame::Game::hasRequestRelease()
+{
+    return _requestRelease;
 }

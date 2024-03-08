@@ -45,7 +45,6 @@ namespace MazeGame
         Ogre::Entity* _groundEntity;
 
         std::unique_ptr<Player> _player;
-        Ogre::Vector3f _playerRayPoint;
 
         std::vector<Battery> _batteries;
     };

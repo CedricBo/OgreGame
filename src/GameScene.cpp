@@ -41,9 +41,9 @@ void GameScene::init()
     initCamera(_cameraNode);
 
     initGound(root);
-    addBattery(root, {200, 0, 200});
-    addBattery(root, {250, 0, 200});
-    addBattery(root, {300, 0, 200});
+    addBattery(root, {200, 0, 100});
+    addBattery(root, {250, 0, 100});
+    addBattery(root, {300, 0, 100});
 }
 
 void GameScene::initCamera(Ogre::SceneNode* parent)
@@ -53,7 +53,7 @@ void GameScene::initCamera(Ogre::SceneNode* parent)
     _camera->setNearClipDistance(5);
     _camera->setAutoAspectRatio(true);
 
-    parent->setPosition({ 0, 55, 8});
+    parent->setPosition({0, 55, 0});
 
     parent->attachObject(_camera);
 }
@@ -147,13 +147,23 @@ void GameScene::update(MazeGame::Game& game)
         playerBody->applyCentralForce(Ogre::Bullet::convert(rotatedMoveVector) * 100);
     }
 
-    std::cout << _cameraNode->getPosition() << " = " << _cameraNode->convertLocalToWorldPosition(_cameraNode->getPosition()) << std::endl;
+    auto rayStartPos = _cameraNode->convertLocalToWorldPosition({0, 0, 0});
+    auto direction = _camera->getRealDirection();
 
     PlayerRayResultCallback p{_batteries};
+    Ogre::Ray ray{rayStartPos, direction};
 
-    // Doesn't work
-    Ogre::Ray ray{_player->getNode()->convertLocalToWorldPosition(_cameraNode->getPosition()), (playerBodyQuaternion * playerNodeQuaternion) * Ogre::Vector3f::UNIT_X};
+    auto point = ray.getPoint(50);
+
+    const auto& grabbed = _batteries.front();
+
+    grabbed.getBody()->getWorldTransform().setOrigin(Ogre::Bullet::convert(point));
+    grabbed.getBody()->setGravity({0, 0, 0});
+    grabbed.getBody()->setAngularFactor(0);
+    grabbed.getBody()->activate(true);
+
     _world.rayTest(ray, &p, 500);
+
 
     // Player Max Speed
     auto playerLinearVelocity = playerBody->getLinearVelocity();
