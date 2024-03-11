@@ -3,19 +3,30 @@
 #include <algorithm>
 #include <iostream>
 
-PlayerRayResultCallback::PlayerRayResultCallback(const std::vector<Battery> &batteries)
-    : _batteries(batteries)
+PlayerRayResultCallback::PlayerRayResultCallback(std::vector<Battery> &batteries)
+    : _batteries(batteries),
+    _nearest(nullptr, 0.0f)
 {
 }
 
 void PlayerRayResultCallback::addSingleResult(const Ogre::MovableObject *other, float distance)
 {
-    auto a = std::find_if(_batteries.begin(), _batteries.end(), [=] (const Battery& battery) {
+    auto batteryIt = std::find_if(_batteries.begin(), _batteries.end(), [=] (const Battery& battery) {
         return static_cast<Ogre::MovableObject*>(battery.getEntity()) == other;
     });
 
-    if(a != _batteries.end())
+    if(batteryIt == _batteries.end())
     {
-        std::cout << "Hit " << other->getParentNode()->getName() << std::endl;
+        return;
     }
+
+    if(_nearest.first == nullptr || distance < _nearest.second)
+    {
+        _nearest = { &(*batteryIt), distance };
+    }
+}
+
+Battery *PlayerRayResultCallback::getNearestResult()
+{
+    return _nearest.first;
 }

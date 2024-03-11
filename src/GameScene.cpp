@@ -10,9 +10,10 @@ using namespace MazeGame;
 
 std::string const GameScene::typeName = "MazeScene";
 
-GameScene::GameScene(std::string instanceName)
+GameScene::GameScene(std::string instanceName, Game& game)
     : Ogre::SceneManager(instanceName),
-    _world({0.0f, 0.0f, 0.0f})
+    _world({0.0f, 0.0f, 0.0f}),
+    _game(game)
 {
     std::cout << "Create GameScene" << std::endl;
 
@@ -35,18 +36,18 @@ void GameScene::init()
     Ogre::SceneNode* root = getRootSceneNode();
 
     auto playerNode = root->createChildSceneNode("PlayerNode");
-    initPlayer(playerNode);
+    createPlayer(playerNode);
 
     _cameraNode = playerNode->createChildSceneNode("CameraNode");
-    initCamera(_cameraNode);
+    createSceneCamera(_cameraNode);
 
-    initGound(root);
+    createGound(root);
     addBattery(root, {200, 0, 100});
     addBattery(root, {250, 0, 100});
     addBattery(root, {300, 0, 100});
 }
 
-void GameScene::initCamera(Ogre::SceneNode* parent)
+void GameScene::createSceneCamera(Ogre::SceneNode* parent)
 {
     _camera = createCamera("Camera");
 
@@ -58,19 +59,20 @@ void GameScene::initCamera(Ogre::SceneNode* parent)
     parent->attachObject(_camera);
 }
 
-void GameScene::initPlayer(Ogre::SceneNode* parent)
+void GameScene::createPlayer(Ogre::SceneNode* parent)
 {
-    parent->setPosition({0, 0, 300});
+    parent->setPosition({0, 0, 110});
     parent->setScale({0.1f, 0.1f, 1});
 
-    _player = std::make_unique<Player>(
+    _playerSceneNode = std::make_unique<PlayerSceneNode>(
+        _game.getPlayer(),
         createEntity("cube.mesh"),
         parent,
         _world
     );
 }
 
-void GameScene::initGound(Ogre::SceneNode* parent)
+void GameScene::createGound(Ogre::SceneNode* parent)
 {
     Ogre::Plane ground{0, 0, 1, 0};
 
@@ -108,16 +110,11 @@ Ogre::SceneNode* GameScene::getCameraNode() const
     return _cameraNode;
 }
 
-Player* GameScene::getPlayer() const
+void GameScene::update()
 {
-    return _player.get();
-}
-
-void GameScene::update(MazeGame::Game& game)
-{
-    auto* playerBody = _player->getBody();
-    auto& [viewAngleX, viewAngleY] = game.getViewAngle();
-    static bool isGrabbed = true;
+    auto* playerBody = _playerSceneNode->getBody();
+    auto& player = _game.getPlayer();
+    auto& [viewAngleX, viewAngleY] = _game.getViewAngle();
 
     if(!playerBody->isActive())
     {
@@ -129,15 +126,13 @@ void GameScene::update(MazeGame::Game& game)
 
     playerBody->getWorldTransform().setRotation(Ogre::Bullet::convert(playerBodyQuaternion));
     _cameraNode->setOrientation(playerNodeQuaternion);
-    // _cameraNode->setOrientation(playerBodyQuaternion * playerNodeQuaternion);
-    // _player->getNode()->setOrientation(playerNodeQuaternion);
 
-    auto& move = game.move;
+    auto& move = _game.move;
 
     if(move.back || move.front || move.left || move.right)
     {
         auto moveVector = Ogre::Vector3f((float)move.left - move.right, (float)move.back - move.front, 0).normalisedCopy() * 10;
-        auto radRy = _player->getNode()->getOrientation().getRoll().valueRadians();
+        auto radRy = _playerSceneNode->getNode()->getOrientation().getRoll().valueRadians();
 
         auto rotatedMoveVector = Ogre::Vector3f{
             std::cos(radRy) * moveVector.x + std::sin(radRy) * moveVector.y,
@@ -150,32 +145,30 @@ void GameScene::update(MazeGame::Game& game)
 
     auto rayStartPos = _cameraNode->convertLocalToWorldPosition({0, 0, 0});
     auto direction = _camera->getRealDirection();
-
-    PlayerRayResultCallback p{_batteries};
     Ogre::Ray ray{rayStartPos, direction};
 
-    auto point = ray.getPoint(50);
+    auto grabbed = player.getGrabbedBattery();
+    bool isGrabbed = grabbed != nullptr; 
 
-    auto& grabbed = _batteries.front();
-
-    if(isGrabbed)
+    if(!isGrabbed)
     {
-        grabbed.getBody()->getWorldTransform().setOrigin(Ogre::Bullet::convert(point));
-        grabbed.getBody()->setGravity({0, 0, 0});
-        grabbed.getBody()->setAngularFactor(0);
-        grabbed.getBody()->activate(true);
-    }
+        PlayerRayResultCallback p{_batteries};
 
-    if(game.hasRequestRelease())
+        _world.rayTest(ray, &p, 500);
+
+        auto nearestBattery = p.getNearestResult();
+
+        player.setLookedBattery(nearestBattery);
+    }
+    else
     {
-        game.resetRequestRelease();
-        isGrabbed = false;
+        auto point = ray.getPoint(50);
 
-        grabbed.applyGravitySettings();
+        grabbed->getBody()->getWorldTransform().setOrigin(Ogre::Bullet::convert(point));
+        grabbed->getBody()->setGravity({0, 0, 0});
+        grabbed->getBody()->setAngularFactor(0);
+        grabbed->getBody()->activate(true);
     }
-
-    _world.rayTest(ray, &p, 500);
-
 
     // Player Max Speed
     auto playerLinearVelocity = playerBody->getLinearVelocity();

@@ -71,3 +71,8 @@ bool MazeGame::Game::hasRequestRelease()
 {
     return _requestRelease;
 }
+
+Player& MazeGame::Game::getPlayer()
+{
+    return _player;
+}

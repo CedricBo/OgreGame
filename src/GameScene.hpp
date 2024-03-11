@@ -6,6 +6,7 @@
 #include "Game.hpp"
 #include "Player.hpp"
 #include "Battery.hpp"
+#include "PlayerSceneNode.hpp"
 
 namespace MazeGame
 {
@@ -14,16 +15,16 @@ namespace MazeGame
     public:
         static const std::string typeName;
 
-        GameScene(std::string instanceName);
+        GameScene(std::string instanceName, Game& game);
         ~GameScene();
 
         const std::string& getTypeName() const;
 
         void init();
 
-        void initCamera(Ogre::SceneNode* parent);
-        void initPlayer(Ogre::SceneNode* parent);
-        void initGound(Ogre::SceneNode* parent);
+        void createSceneCamera(Ogre::SceneNode* parent);
+        void createPlayer(Ogre::SceneNode* parent);
+        void createGound(Ogre::SceneNode* parent);
 
         void addBattery(Ogre::SceneNode* parent, Ogre::Vector3f position);
 
@@ -31,11 +32,10 @@ namespace MazeGame
 
         Ogre::SceneNode* getCameraNode() const;
 
-        Player* getPlayer() const;
+        void update();
 
-        void update(MazeGame::Game& game);
+        Ogre::Bullet::DynamicsWorld *getWorld();
 
-        Ogre::Bullet::DynamicsWorld* getWorld();
     private:
         Ogre::Bullet::DynamicsWorld _world;
 
@@ -44,8 +44,11 @@ namespace MazeGame
 
         Ogre::Entity* _groundEntity;
 
-        std::unique_ptr<Player> _player;
+        // std::unique_ptr<Player> _player;
+        std::unique_ptr<PlayerSceneNode> _playerSceneNode;
 
         std::vector<Battery> _batteries;
+
+        Game& _game;
     };
 }

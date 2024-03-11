@@ -8,7 +8,8 @@
 
 using namespace MazeGame;
 
-GameSceneManagerFactory::GameSceneManagerFactory()
+GameSceneManagerFactory::GameSceneManagerFactory(Game& game)
+    : _game(game)
 {
 }
 
@@ -23,5 +24,5 @@ const std::string& GameSceneManagerFactory::getTypeName() const
 
 Ogre::SceneManager* GameSceneManagerFactory::createInstance(const std::string &instanceName)
 {
-    return new GameScene(instanceName);
+    return new GameScene(instanceName, _game);
 }

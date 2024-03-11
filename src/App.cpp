@@ -10,7 +10,7 @@ App::App()
     : _context("MazeGame"),
     _game(),
     _inputListener(_game),
-    _gameSceneManagerFactory()
+    _gameSceneManagerFactory(_game)
 {
     _context.initApp();
     _context.addInputListener(&_inputListener);
@@ -61,11 +61,11 @@ void MazeGame::App::run()
 
         _scene->getRootSceneNode()->needUpdate(true);
 
-        _scene->update(_game);
+        _scene->update();
 
         _context.pollEvents();
 
-        world->getBtWorld()->stepSimulation(0.16f);
+        world->getBtWorld()->stepSimulation(1 / 60.0f);
     }
 }
 

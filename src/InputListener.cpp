@@ -18,6 +18,7 @@ InputListener::~InputListener()
 bool InputListener::keyPressed(const OgreBites::KeyboardEvent &evt)
 {
     auto& game = _game.get();
+    auto& player = game.getPlayer();
 
     switch (evt.keysym.sym)
     {
@@ -40,7 +41,10 @@ bool InputListener::keyPressed(const OgreBites::KeyboardEvent &evt)
         game.move.back = true;
         break;
     case 103:
-        game.requestRelease();
+        player.releaseBattery();
+        break;
+    case 101:
+        player.grabLookedBattery();
         break;
     default:
         std::cout << evt.keysym.sym << std::endl;

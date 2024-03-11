@@ -1,6 +1,6 @@
 #pragma once
 
-#include <OgreFrameListener.h>
+#include "Player.hpp"
 
 namespace MazeGame
 {
@@ -29,6 +29,8 @@ namespace MazeGame
 
         bool hasRequestRelease();
 
+        Player& getPlayer();
+
         struct Move {
             bool left = false;
             bool right = false;
@@ -48,5 +50,7 @@ namespace MazeGame
         float _shipAngleY = 0;
 
         bool _light = true;
+
+        Player _player;
     };
 }

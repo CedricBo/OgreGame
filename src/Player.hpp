@@ -1,20 +1,19 @@
 #pragma once
 
-#include <Ogre.h>
-#include <OgreBullet.h>
+#include "Battery.hpp"
 
 class Player
 {
     public:
-        Player(Ogre::Entity* entity, Ogre::SceneNode* parent, Ogre::Bullet::DynamicsWorld& physicWorld);
+        Player();
         ~Player();
 
-        Ogre::Entity* getEntity();
-        Ogre::SceneNode* getNode();
-        btRigidBody* getBody();
+        void setLookedBattery(Battery* battery);
+        void grabLookedBattery();
+        void releaseBattery();
 
+        Battery* getGrabbedBattery();
     private:
-        Ogre::Entity* _entity;
-        Ogre::SceneNode* _node;
-        btRigidBody* _body;
+        Battery* _lookedBattery = nullptr;
+        Battery* _grabbedBattery = nullptr;
 };

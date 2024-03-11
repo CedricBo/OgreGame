@@ -8,9 +8,14 @@
 class PlayerRayResultCallback : public Ogre::Bullet::RayResultCallback
 {
     public:
-        PlayerRayResultCallback(const std::vector<Battery>& batteries);
+        PlayerRayResultCallback(std::vector<Battery>& batteries);
 
         void addSingleResult(const Ogre::MovableObject* other, float distance) override;
+
+        Battery* getNearestResult();
     private:
-        const std::vector<Battery>& _batteries;
+        std::vector<Battery>& _batteries;
+
+        // Battery, distance
+        std::pair<Battery*, float> _nearest;
 };
