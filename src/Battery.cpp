@@ -50,5 +50,7 @@ bool Battery::isFull()
 void Battery::applyGravitySettings()
 {
     _entityMembers.body->setAngularFactor(1);
-    _entityMembers.body->setGravity({0, 0, -9.0f});
+    _entityMembers.body->setGravity({0, 0, -9.81f});
+
+    _entityMembers.body->setCollisionFlags(_entityMembers.body->getCollisionFlags() & ~btCollisionObject::CF_NO_CONTACT_RESPONSE);
 }

@@ -163,11 +163,17 @@ void GameScene::update()
     else
     {
         auto point = ray.getPoint(50);
+        auto body = grabbed->getBody();
 
-        grabbed->getBody()->getWorldTransform().setOrigin(Ogre::Bullet::convert(point));
-        grabbed->getBody()->setGravity({0, 0, 0});
-        grabbed->getBody()->setAngularFactor(0);
-        grabbed->getBody()->activate(true);
+        body->getWorldTransform().setRotation(btQuaternion::getIdentity());
+        body->setAngularVelocity({0, 0, 0});
+        body->setLinearVelocity({0, 0, 0});
+
+        body->getWorldTransform().setOrigin(Ogre::Bullet::convert(point));
+        body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+        body->setGravity({0, 0, 0});
+        body->setAngularFactor(0);
+        body->activate(true);
     }
 
     // Player Max Speed
